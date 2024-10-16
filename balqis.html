@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perbandingan Hash File</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2 {
+            color: #806154; /* Ubah warna judul menjadi coklat */
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #806154; /* Ubah warna latar belakang judul kolom menjadi coklat */
+            color: white;
+            padding: 8px;
+            text-align: center; /* Atur teks judul kolom agar berada di tengah */
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left; /* Isi tabel tetap rata kiri */
+        }
+        form {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            color: #806154; /* Ubah warna label menjadi coklat */
+            display: block;
+            margin-bottom: 8px;
+        }
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        input[type="submit"] {
+            background-color: #806154; /* Ubah warna tombol menjadi coklat */
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #6a4a3a; /* Warna lebih gelap saat hover */
+        }
+        table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Perbandingan Hash File</h1>
+        
+        <h2>Informasi Hash</h2>
+        <table>
+            <tr>
+                <th>Deskripsi</th>
+                <th>Hash</th>
+            </tr>
+            <tr>
+                <td>Hash Asli</td>
+                <td id="original-hash">Loading...</td>
+            </tr>
+            <tr>
+                <td>Hash Dimodifikasi</td>
+                <td id="modified-hash">Loading...</td>
+            </tr>
+        </table>
+
+        <h2>Perbandingan Isi File</h2>
+        <table>
+            <tr>
+                <th>Nomor Baris</th>
+                <th>Isi Asli</th>
+                <th>Isi Dimodifikasi</th>
+            </tr>
+            <tbody id="file-content">
+                <!-- Konten file akan dipopulasi di sini -->
+            </tbody>
+        </table>
+
+        <h2>Update Data di File</h2>
+        <form onsubmit="updateData(event);">
+            <label for="line_number">Nomor Baris:</label>
+            <input type="number" id="line_number" min="1" placeholder="Masukkan nomor baris" required>
+            
+            <label for="new_data">Data Baru:</label>
+            <textarea id="new_data" rows="4" placeholder="Masukkan data baru di sini..." required></textarea><br>
+            
+            <input type="submit" value="Update Data">
+        </form>
+    </div>
+
+    <script>
+        let originalContents = []; // Data asli yang tidak berubah
+        let modifiedContents = []; // Data yang bisa dimodifikasi
+        let originalHash = "";
+        let modifiedHash = "";
+
+        // Fungsi untuk memuat konten dari data.txt
+        async function loadContents() {
+            const response = await fetch('balqis.txt');
+            const fileData = await response.text();
+            originalContents = fileData.split('\n'); // Simpan data asli
+            modifiedContents = [...originalContents]; // Salin data untuk modifikasi
+            originalHash = calculateHash(fileData);
+            modifiedHash = originalHash; // Inisialisasi hash modifikasi sama dengan hash asli
+            updateTable();
+        }
+
+        // Fungsi untuk menghitung hash
+        function calculateHash(data) {
+            return CryptoJS.SHA256(data).toString();
+        }
+
+        // Fungsi untuk memperbarui tabel
+        function updateTable() {
+            const fileContentTable = document.getElementById('file-content');
+            fileContentTable.innerHTML = "";
+
+            originalContents.forEach((line, index) => {
+                fileContentTable.innerHTML += `<tr>
+                    <td>${index + 1}</td>
+                    <td>${line}</td>
+                    <td>${modifiedContents[index]}</td>
+                </tr>`;
+            });
+
+            document.getElementById('original-hash').innerText = originalHash;
+            document.getElementById('modified-hash').innerText = modifiedHash;
+        }
+
+        // Fungsi untuk memperbarui data
+        function updateData(event) {
+            event.preventDefault(); // Cegah pengiriman form
+            const lineNumber = parseInt(document.getElementById('line_number').value) - 1; // Menghitung indeks baris
+            const newData = document.getElementById('new_data').value;
+
+            if (lineNumber >= 0 && lineNumber < modifiedContents.length) {
+                modifiedContents[lineNumber] = newData; // Update hanya isi modifikasi
+                modifiedHash = calculateHash(modifiedContents.join('\n')); // Hitung hash setelah modifikasi
+                document.getElementById('new_data').value = ''; // Kosongkan input
+                updateTable(); // Perbarui tabel
+            } else {
+                alert("Nomor baris tidak valid!");
+            }
+        }
+
+        // Muat konten saat halaman dimuat
+        loadContents();
+    </script>
+</body>
+</html>
