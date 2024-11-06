@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+    <title>Formulir Penilaian Risiko dengan STRIDE dan DREAD</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #d1d1d1;
+            overflow-y: auto;
+            font-size: 20px;
+        }
+
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 26px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        select {
+            font-size: 15px;
+            padding: 10px;
+        }
+
+        .dread-section label {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .dread-section input {
+            width: 50px;
+            margin-right: 10px;
+            font-size: 15px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border: 1px solid #b3e5fc;
+            border-radius: 5px;
+        }
+
+        .risk-description {
+            margin-top: 5px;
+            color: #333;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .risk-low {
+            color: green;
+        }
+
+        .risk-medium {
+            color: orange;
+        }
+
+        .risk-high {
+            color: red;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Formulir Penilaian Risiko</h2>
+        <form id="riskForm">
+
+            <label for="asset">Nama Aset:</label>
+            <select id="asset" name="asset" required>
+                <option value="">Pilih Nama Aset</option>
+                <option value="Server">Server</option>
+                <option value="Database">Database</option>
+                <option value="Data Pengguna">Data Pengguna</option>
+                <option value="API Eksternal">API Eksternal</option>
+            </select>
+
+            <label for="threat-detail">Detail Ancaman:</label>
+            <textarea id="threat-detail" name="threat-detail" rows="4" placeholder="Deskripsikan detail ancaman..."
+                required></textarea>
+
+            <label for="threat-type">Jenis Ancaman (STRIDE):</label>
+            <select id="threat-type" name="threat-type" required>
+                <option value="">Pilih Jenis Ancaman</option>
+                <option value="Spoofing">Spoofing</option>
+                <option value="Tampering">Tampering</option>
+                <option value="Repudiation">Repudiation</option>
+                <option value="Information Disclosure">Pengungkapan Informasi</option>
+                <option value="Denial of Service">Denial of Service</option>
+                <option value="Elevation of Privilege">Kenaikan Hak Istimewa</option>
+            </select>
+
+            <h3>Penilaian Risiko dengan DREAD</h3>
+
+            <div class="dread-section">
+                <label for="damage">Potensi Kerusakan (D):
+                    <input type="number" id="damage" name="damage" min="1" max="10" required
+                        onchange="updateRiskDescription('damage')">
+                    <div id="damage-description" class="risk-description"></div>
+                </label>
+
+                <label for="reproducibility">Kemungkinan Terulang (R):
+                    <input type="number" id="reproducibility" name="reproducibility" min="1" max="10" required
+                        onchange="updateRiskDescription('reproducibility')">
+                    <div id="reproducibility-description" class="risk-description"></div>
+                </label>
+
+                <label for="exploitability">Kemudahan Eksploitasi (E):
+                    <input type="number" id="exploitability" name="exploitability" min="1" max="10" required
+                        onchange="updateRiskDescription('exploitability')">
+                    <div id="exploitability-description" class="risk-description"></div>
+                </label>
+
+                <label for="affected-users">Jumlah Pengguna Terpengaruh (A):
+                    <input type="number" id="affected-users" name="affected-users" min="1" max="10" required
+                        onchange="updateRiskDescription('affected-users')">
+                    <div id="affected-users-description" class="risk-description"></div>
+                </label>
+
+                <label for="discoverability">Kemudahan Ditemukan (D):
+                    <input type="number" id="discoverability" name="discoverability" min="1" max="10" required
+                        onchange="updateRiskDescription('discoverability')">
+                    <div id="discoverability-description" class="risk-description"></div>
+                </label>
+            </div>
+
+            <label for="mitigation">Mitigasi yang Disarankan:</label>
+            <textarea id="mitigation" name="mitigation" rows="4" placeholder="Deskripsikan langkah mitigasi..."
+                required></textarea>
+
+            <button type="button" onclick="submitForm()">Kirim</button>
+        </form>
+
+        <div id="output" class="output" style="display:none;">
+            <h3>Data yang Dikirim:</h3>
+            <p><strong>Nama Aset:</strong> <span id="outputAsset"></span></p>
+            <p><strong>Detail Ancaman:</strong> <span id="outputThreatDetail"></span></p>
+            <p><strong>Jenis Ancaman:</strong> <span id="outputThreatType"></span></p>
+            <p><strong>Skor DREAD:</strong></p>
+            <ul>
+                <li><strong>Damage Potential (D):</strong> <span id="outputDamage"></span></li>
+                <li><strong>Reproducibility (R):</strong> <span id="outputReproducibility"></span></li>
+                <li><strong>Exploitability (E):</strong> <span id="outputExploitability"></span></li>
+                <li><strong>Affected Users (A):</strong> <span id="outputAffectedUsers"></span></li>
+                <li><strong>Discoverability (D):</strong> <span id="outputDiscoverability"></span></li>
+            </ul>
+            <p><strong>Total Skor DREAD:</strong> <span id="outputTotalScore"></span> (<span
+                    id="outputRiskLevel"></span>)</p>
+            <p><strong>Mitigasi yang Disarankan:</strong> <span id="outputMitigation"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function updateRiskDescription(field) {
+            const value = parseInt(document.getElementById(field).value);
+            const descriptionElement = document.getElementById(field + '-description');
+
+            if (!isNaN(value)) {
+                let riskLevel;
+                if (value <= 3) {
+                    riskLevel = "Resiko Rendah";
+                    descriptionElement.className = "risk-description risk-low";
+                } else if (value <= 7) {
+                    riskLevel = "Resiko Menengah";
+                    descriptionElement.className = "risk-description risk-medium";
+                } else {
+                    riskLevel = "Resiko Tinggi";
+                    descriptionElement.className = "risk-description risk-high";
+                }
+                descriptionElement.textContent = riskLevel;
+            } else {
+                descriptionElement.textContent = "";
+            }
+        }
+
+        function submitForm() {
+            const asset = document.getElementById("asset").value;
+            const threatDetail = document.getElementById("threat-detail").value;
+            const threatType = document.getElementById("threat-type").value;
+            const damage = parseInt(document.getElementById("damage").value);
+            const reproducibility = parseInt(document.getElementById("reproducibility").value);
+            const exploitability = parseInt(document.getElementById("exploitability").value);
+            const affectedUsers = parseInt(document.getElementById("affected-users").value);
+            const discoverability = parseInt(document.getElementById("discoverability").value);
+            const mitigation = document.getElementById("mitigation").value;
+
+            const totalScore = damage + reproducibility + exploitability + affectedUsers + discoverability;
+
+            // Tentukan tingkat risiko berdasarkan total skor
+            let riskLevel;
+            if (totalScore <= 15) {
+                riskLevel = "Resiko Rendah";
+                document.getElementById("outputRiskLevel").className = "risk-low";
+            } else if (totalScore <= 30) {
+                riskLevel = "Resiko Menengah";
+                document.getElementById("outputRiskLevel").className = "risk-medium";
+            } else {
+                riskLevel = "Resiko Tinggi";
+                document.getElementById("outputRiskLevel").className = "risk-high";
+            }
+
+            // Tampilkan data di dalam elemen output
+            document.getElementById("outputAsset").textContent = asset;
+            document.getElementById("outputThreatDetail").textContent = threatDetail;
+            document.getElementById("outputThreatType").textContent = threatType;
+            document.getElementById("outputDamage").textContent = damage;
+            document.getElementById("outputReproducibility").textContent = reproducibility;
+            document.getElementById("outputExploitability").textContent = exploitability;
+            document.getElementById("outputAffectedUsers").textContent = affectedUsers;
+            document.getElementById("outputDiscoverability").textContent = discoverability;
+            document.getElementById("outputTotalScore").textContent = totalScore;
+            document.getElementById("outputMitigation").textContent = mitigation;
+            document.getElementById("outputRiskLevel").textContent = riskLevel;
+
+            document.getElementById("output").style.display = "block";
+        }
+
+    </script>
+</body>
+
+</html>
